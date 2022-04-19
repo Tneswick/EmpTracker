@@ -2,8 +2,9 @@ const inq = require('inquirer');
 const cTable = require('console.table');
 const db = require('./db/connection');
 
-const menu = require('./lib/questions');
-const { viewEmps, addEmp }= require('./lib/queries')
+const { menu, addEmp, updateEmp } = require('./lib/questions');
+const { viewEmpsQ, addEmpQ, getEmpsQ, updateEmpQ, viewRolesQ } = require('./lib/queries')
+const { parseManager, parseRole } = require('./lib/functions')
 
 console.log(`
 / $$$$$$$$                      /$$$$$$$$                           /$$                          
@@ -19,17 +20,51 @@ console.log(`
                        |__/                                                                     
 `)
 
-const start = () => {
+function start() {
   inq.prompt(menu).then(result => {
+    
     if(result.res === 'View All Employees') {
-      db.query(viewEmps, (err, rows) => {
+      db.query(viewEmpsQ, (err, rows) => {
         console.table(rows);
         start();
       })
     }
     if(result.res === 'Add Employee') {
-      inq.prompt(addEmp).then(result => {
-        
+      inq.prompt(addEmp).then(res => {
+        console.log(res);
+        const managerId = parseManager(res.manager)
+        const params = [res.firstName, res.lastName, res.role, managerId]
+
+        db.query(addEmpQ, params, (err, result) => {
+          if (err) throw err;
+          console.log('Employee Added!');
+          start();
+        })
+      })
+    }
+    if(result.res === 'Update Employee Role') {
+      db.query(getEmpsQ, (err, data) => {
+        if (err) throw err;
+        console.log('--------------------------------------------')
+        console.table(data)
+      })
+      setTimeout(()=> {
+        inq.prompt(updateEmp).then(res => {
+          const empId = res.empId
+          const roleId = parseRole(res.roleName)
+          db.query(updateEmpQ, [roleId, empId], (err, res) => {
+            if (err) throw err;
+            console.log('Employee Role Updated!');
+            start();
+          })
+        })
+      }, 1000)
+    }
+    if(result.res === 'View All Roles') {
+      db.query(viewRolesQ, (err, res) => {
+        if (err) throw err;
+        console.log('--------------------------------------------')
+        console.table(res);
       })
     }
   }
