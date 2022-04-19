@@ -2,8 +2,8 @@ const inq = require('inquirer');
 const cTable = require('console.table');
 const db = require('./db/connection');
 
-const { menu, addEmp, updateEmp } = require('./lib/questions');
-const { viewEmpsQ, addEmpQ, getEmpsQ, updateEmpQ, viewRolesQ } = require('./lib/queries')
+const { menu, addEmp, updateEmp, addRole, addDepartment } = require('./lib/questions');
+const { viewEmpsQ, addEmpQ, getEmpsQ, updateEmpQ, viewRolesQ, addRoleQ, viewDepartmentsQ, addDepartmentQ } = require('./lib/queries')
 const { parseManager, parseRole } = require('./lib/functions')
 
 console.log(`
@@ -65,7 +65,43 @@ function start() {
         if (err) throw err;
         console.log('--------------------------------------------')
         console.table(res);
+        start();
       })
+    }
+    if(result.res === 'Add Role') {
+      inq.prompt(addRole).then(res => {
+        const role = res.name
+        const salary = res.salary
+        const department = res.department
+
+        db.query(addRoleQ, [role, salary, department], (err, res) => {
+          if (err) throw err;
+          console.log('Role added!')
+          start();
+        })
+      })
+    }
+    if(result.res === 'View All Departments') {
+      db.query(viewDepartmentsQ, (err, res) => {
+        if (err) throw err;
+        console.log('--------------------------------------------')
+        console.table(res);
+        start();
+      })
+    }
+    if(result.res === 'Add Department') {
+      inq.prompt(addDepartment).then(res => {
+        db.query(addDepartmentQ, res.name, (err, res) => {
+          if (err) throw err;
+          console.log('Department added!');
+          start();
+        })
+      })
+    }
+    if(result.res === 'Quit') {
+      console.log(`----------------------------------
+      Thanks for using EmpTracker!
+      ----------------------------------`);
     }
   }
 )}
