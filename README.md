@@ -6,8 +6,9 @@
 ## 📃 Instructions
 1. Install [Node.js](https://nodejs.org) on your local machine. 
 2. Clone this repository into your own machine and navigate to the root folder of EmpTracker. 
-3. Open up a terminal in this location and run "node index.js" in the command line. 
-4. Utilize the Main Menu to create your database or visualize it.
+3. Open up a terminal in this location and run "npm i" in the command line.
+4. Once that is complete, run "node index.js" 
+5. Utilize the Main Menu to create your database or visualize it.
 
 ## 🔨 Built With
 - JavaScript
